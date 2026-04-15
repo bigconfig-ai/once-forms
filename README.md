@@ -25,6 +25,12 @@ docker build -t app-bigconfig-website .
 docker run -p 80:80 app-bigconfig-website
 ```
 
+## Deploy
+
+```sh
+bb --config deployment.edn package create
+```
+
 ## Dependencies
 
 Declared in `bb.edn`:
