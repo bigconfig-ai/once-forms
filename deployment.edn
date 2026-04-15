@@ -1,4 +1,4 @@
-{:deps {io.github.amiorin/once {:git/sha "8ffbbc2ea0974365575c7ee44b7d890e69447144"}}
+{:deps {io.github.amiorin/once {:git/sha "f00e916ff1e06cc1d45cae192d4e370726251481"}}
  :tasks
  {:requires ([io.github.amiorin.once.package :as p])
   package {:doc "bb package create | bb package delete"
