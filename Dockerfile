@@ -30,8 +30,8 @@ COPY --from=builder /usr/local/bin/hivemind /usr/local/bin/hivemind
 WORKDIR /srv
 
 # Combine COPY commands to reduce layers
-COPY Caddyfile form.bb Procfile ./
+COPY Caddyfile bb.edn form.bb Procfile ./
 
 EXPOSE 80
 
-CMD ["hivemind", "/srv/Procfile"]
+CMD ["hivemind", "Procfile"]
