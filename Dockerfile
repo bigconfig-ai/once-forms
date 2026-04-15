@@ -1,36 +1,29 @@
-# Stage 1: Builder
-FROM caddy:2-alpine AS builder
-
-ARG TARGETARCH
+# Stage 1: Build uberjar
+FROM clojure:temurin-25-tools-deps-alpine AS builder
 WORKDIR /app
+COPY deps.edn build.clj ./
+COPY src ./src
+RUN clojure -T:build uber
 
-# Install build dependencies
-RUN apk add --no-cache bash curl
-
-# Install Babashka
-RUN curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install \
-    && chmod +x install \
-    && ./install \
-    && rm install
-
-# Download and extract Hivemind
+# Stage 2: Fetch Hivemind
+FROM alpine:3 AS hivemind
+ARG TARGETARCH
+RUN apk add --no-cache curl
 RUN curl -sL "https://github.com/DarthSim/hivemind/releases/download/v1.1.0/hivemind-v1.1.0-linux-${TARGETARCH}.gz" \
     | gunzip > /usr/local/bin/hivemind \
     && chmod +x /usr/local/bin/hivemind
 
-# Stage 2: Final Image
+# Stage 3: Final Image
 FROM caddy:2-alpine
 
-RUN apk add libc6-compat openjdk25
+RUN apk add openjdk25
 
-# Copy binaries from the builder stage
-COPY --from=builder /usr/local/bin/bb /usr/local/bin/bb
-COPY --from=builder /usr/local/bin/hivemind /usr/local/bin/hivemind
+COPY --from=builder /app/target/app-bigconfig-website-0.1.0-standalone.jar /srv/app.jar
+COPY --from=hivemind /usr/local/bin/hivemind /usr/local/bin/hivemind
 
 WORKDIR /srv
 
-# Combine COPY commands to reduce layers
-COPY Caddyfile bb.edn form.bb Procfile ./
+COPY Caddyfile Procfile ./
 
 EXPOSE 80
 

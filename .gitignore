@@ -2,3 +2,5 @@
 !.gitignore
 !.github
 !.envrc
+!.dir-locals.el
+/target
