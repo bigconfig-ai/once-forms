@@ -21,7 +21,7 @@ RUN curl -sL "https://github.com/DarthSim/hivemind/releases/download/v1.1.0/hive
 # Stage 2: Final Image
 FROM caddy:2-alpine
 
-RUN apk add libc6-compat
+RUN apk add libc6-compat openjdk25
 
 # Copy binaries from the builder stage
 COPY --from=builder /usr/local/bin/bb /usr/local/bin/bb
