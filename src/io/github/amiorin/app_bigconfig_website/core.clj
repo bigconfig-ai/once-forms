@@ -16,20 +16,21 @@
        (map (fn [[k v]] [(keywordize k) v]))
        (into {})))
 
-(def env (read-system-env))
+(def env (delay (read-system-env)))
 
 (def resend-config
-  {:host (:smtp-address env)
-   :user (:smtp-username env)
-   :pass (:smtp-password env)
-   :tls  true
-   :port (-> (:smtp-port env)
-             Integer/parseInt)})
+  (delay
+    {:host (:smtp-address @env)
+     :user (:smtp-username @env)
+     :pass (:smtp-password @env)
+     :tls  true
+     :port (-> (:smtp-port @env)
+               Integer/parseInt)}))
 
 (defn send-email
   [& {:keys [to subject body]}]
-  (postal/send-message resend-config
-                       {:from    (:mailer-from-address env)
+  (postal/send-message @resend-config
+                       {:from    (:mailer-from-address @env)
                         :to      to
                         :subject subject
                         :body    body}))
