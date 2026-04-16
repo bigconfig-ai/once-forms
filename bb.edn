@@ -10,7 +10,7 @@
                        :once {:applications [{:host "app.bigconfig.website"
                                               :image "ghcr.io/amiorin/app-bigconfig-website:latest"}
                                              {:host "app-v2.bigconfig.website"
-                                              :image "ghcr.io/amiorin/app-bigconfig-website:latest"
+                                              :image "ghcr.io/amiorin/app-v2-bigconfig-website:latest"
                                               :env ["TARGET_EMAIL=clickhouse@albertomiorin.com"]}]}
                        :provider-backend "s3"
                        :s3-bucket "tf-state-251213589273-eu-west-1"
@@ -32,6 +32,9 @@
                        :oci-boot-volume-size-in-gbs 50
                        :oci-boot-volume-vpus-per-gb 30
                        :oci-ssh-authorized-keys "~/.ssh/id_ed25519.pub"}})
+  tidy {:doc "tidy clojure files"
+        :task (do (shell "clojure-lsp clean-ns")
+                  (shell "clojure-lsp format"))}
   ansible {:doc "bb ansible"
            :task (tools/ansible* "render -- ansible-playbook main.yml" (params/once-opts options))}
   package {:doc "bb package"

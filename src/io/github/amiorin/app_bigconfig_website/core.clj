@@ -1,9 +1,12 @@
 (ns io.github.amiorin.app-bigconfig-website.core
-  (:require [org.httpkit.server :as server]
-            [cheshire.core :as json]
-            [clojure.string :as str]
-            [postal.core :as postal])
-  (:gen-class))
+  (:require
+   [cheshire.core :as json]
+   [clojure.string :as str]
+   [org.httpkit.server :as server]
+   [postal.core :as postal])
+  (:gen-class)
+  (:import
+   [java.io StringReader]))
 
 (defn- keywordize [s]
   (-> (str/lower-case s)
@@ -28,10 +31,10 @@
                Integer/parseInt)}))
 
 (defn send-email
-  [& {:keys [to subject body]}]
+  [& {:keys [subject body]}]
   (postal/send-message @resend-config
                        {:from    (:mailer-from-address @env)
-                        :to      to
+                        :to      (:target-email @env)
                         :subject subject
                         :body    body}))
 
@@ -41,16 +44,25 @@
               :body "This is sent via Resend!"))
 
 (defn handler [{:keys [request-method uri body]}]
-  (case request-method
-    :post (let [post-data (json/parse-string (slurp body) true)]
-            (println "Received POST to " uri " with data: " post-data)
-            (send-email :to "alberto.miorin@gmail.com"
-                        :subject "IMPORTANT: ClickHouse BigConfig package form"
-                        :body (json/generate-string post-data {:pretty true}))
-            {:status 200
-             :headers {"Content-Type" "application/json"}
-             :body (json/generate-string {:status "success" :you-sent post-data})})
+  (cond
+    (and (= request-method :post)
+         (= uri "/clickhouse")) (let [post-data (json/parse-string (slurp body) true)]
+                                  (-> (send-email :subject "IMPORTANT: ClickHouse BigConfig package form"
+                                                  :body (json/generate-string post-data {:pretty true}))
+                                      (merge {:uri uri
+                                              :post-data post-data})
+                                      println)
+                                  {:status 200
+                                   :headers {"Content-Type" "application/json"}
+                                   :body (json/generate-string {:status "success" :you-sent post-data})})
+
+    :else
     {:status 200 :body "UP"}))
+
+(comment
+  (handler {:request-method :post
+            :uri "/clickhouse"
+            :body (StringReader. "{\"foo\": \"bar\"}")}))
 
 (defn wrap-cors
   [handler]
