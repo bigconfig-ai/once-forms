@@ -8,10 +8,37 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: amiorin/app-v2-bigconfig-website
+  IMAGE_NAME: amiorin/once-form-handler
 
 jobs:
+  test:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Download big-container
+        run: docker pull ghcr.io/amiorin/big-container:latest
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Runs tests
+        id: run_tests
+        run: >-
+          docker run
+          --rm
+          -u vscode
+          -v /tmp:/tmp
+          -e SSH_AUTH_SOCK=$SSH_AUTH_SOCK
+          -e GITHUB_WORKSPACE=$GITHUB_WORKSPACE
+          -v $GITHUB_WORKSPACE:$GITHUB_WORKSPACE
+          ghcr.io/amiorin/big-container:latest
+          fish -c 'cd $GITHUB_WORKSPACE
+          && devenv shell clojure -X:test'
+
+  # test locally
+  # cat .github/workflows/ci.yml | jet -i yaml -o json | jq -r .jobs.test.steps[2].run | GITHUB_WORKSPACE=$(pwd) bash -s
+
   build-and-push:
+    needs:
+      - test
     runs-on: ubuntu-24.04-arm
     permissions:
       contents: read

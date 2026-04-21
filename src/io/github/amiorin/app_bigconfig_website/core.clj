@@ -2,11 +2,10 @@
   (:require
    [cheshire.core :as json]
    [clojure.string :as str]
+   [reitit.ring :as ring]
    [org.httpkit.server :as server]
    [postal.core :as postal])
-  (:gen-class)
-  (:import
-   [java.io StringReader]))
+  (:gen-class))
 
 (defn- keywordize [s]
   (-> (str/lower-case s)
@@ -38,31 +37,25 @@
                         :subject subject
                         :body    body}))
 
-(comment
-  (send-email :to "alberto.miorin@gmail.com"
-              :subject "IMPORTANT: ClickHouse BigConfig package form"
-              :body "This is sent via Resend!"))
+(defn handle-form
+  [{:keys [body uri] :as req}]
+  (let [form-name (get-in req [:path-params :form-name])
+        post-data (json/parse-string (slurp body) true)]
+    (-> (send-email :subject (format "IMPORTANT: %s form submitted" form-name)
+                    :body (json/generate-string post-data {:pretty true}))
+        (merge {:uri uri
+                :post-data post-data})
+        println)
+    {:status 200
+     :headers {"Content-Type" "application/json"}
+     :body (json/generate-string {:status "success" :you-sent post-data})}))
 
-(defn handler [{:keys [request-method uri body]}]
-  (cond
-    (and (= request-method :post)
-         (= uri "/clickhouse")) (let [post-data (json/parse-string (slurp body) true)]
-                                  (-> (send-email :subject "IMPORTANT: ClickHouse BigConfig package form"
-                                                  :body (json/generate-string post-data {:pretty true}))
-                                      (merge {:uri uri
-                                              :post-data post-data})
-                                      println)
-                                  {:status 200
-                                   :headers {"Content-Type" "application/json"}
-                                   :body (json/generate-string {:status "success" :you-sent post-data})})
+(def app-routes
+  (ring/router
+   ["form/:form-name" {:post handle-form}]))
 
-    :else
-    {:status 200 :body "UP"}))
-
-(comment
-  (handler {:request-method :post
-            :uri "/clickhouse"
-            :body (StringReader. "{\"foo\": \"bar\"}")}))
+(def ring-handler
+  (ring/ring-handler app-routes (constantly {:status 200 :body "UP"})))
 
 (defn wrap-cors
   [handler]
@@ -78,10 +71,17 @@
                  "Access-Control-Allow-Methods" "POST, GET, OPTIONS"
                  "Access-Control-Allow-Headers" "Content-Type, Authorization"})))))
 
-(def app (wrap-cors handler))
+(def app (wrap-cors ring-handler))
 
 (defn -main [& _]
-  (let [port 8080]
-    (println (str "Server starting on http://localhost:" port))
-    (server/run-server app {:port port})
-    @(promise)))
+  (let [port 8080
+        stop-server (server/run-server app {:port port})
+        shutdown-promise (promise)]
+    (println (format "Server started on http://localhost:%s. Press Ctrl+C to stop. " port))
+    (.addShutdownHook (Runtime/getRuntime)
+                      (Thread. (fn []
+                                 (println "\nShutting down...")
+                                 (stop-server) ; Stops http-kit
+                                 (deliver shutdown-promise true))))
+    @shutdown-promise
+    (println "Exit complete.")))
