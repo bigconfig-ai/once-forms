@@ -11,7 +11,10 @@
                                               :image "ghcr.io/amiorin/app-bigconfig-website:latest"}
                                              {:host "app-v2.bigconfig.website"
                                               :image "ghcr.io/amiorin/app-v2-bigconfig-website:latest"
-                                              :env ["TARGET_EMAIL=clickhouse@albertomiorin.com"]}]}
+                                              :env ["TARGET_EMAIL=clickhouse@albertomiorin.com"]}
+                                             {:host "forms.bigconfig.website"
+                                              :image "ghcr.io/amiorin/once-form-handler:latest"
+                                              :env ["TARGET_EMAIL=forms@albertomiorin.com"]}]}
                        :provider-backend "s3"
                        :s3-bucket "tf-state-251213589273-eu-west-1"
                        :s3-region "eu-west-1"
