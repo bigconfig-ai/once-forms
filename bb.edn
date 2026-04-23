@@ -1,4 +1,5 @@
-{:deps {io.github.amiorin/once {:git/sha "f00e916ff1e06cc1d45cae192d4e370726251481"}}
+{:deps {io.github.amiorin/once {:git/sha "9ec8356130d8536dc0458b5418ac33b59745c36d"
+                                #_#_:local/root "../once/main"}}
  :tasks
  {:requires ([io.github.amiorin.once.package :as pkg]
              [io.github.amiorin.once.tools :as tools]
@@ -7,12 +8,7 @@
                       :big-config.workflow/params
                       {:domain "bigconfig.website"
                        :package "package"
-                       :once {:applications [{:host "app.bigconfig.website"
-                                              :image "ghcr.io/amiorin/app-bigconfig-website:latest"}
-                                             {:host "app-v2.bigconfig.website"
-                                              :image "ghcr.io/amiorin/app-v2-bigconfig-website:latest"
-                                              :env ["TARGET_EMAIL=clickhouse@albertomiorin.com"]}
-                                             {:host "forms.bigconfig.website"
+                       :once {:applications [{:host "forms.bigconfig.website"
                                               :image "ghcr.io/amiorin/once-form-handler:latest"
                                               :env ["TARGET_EMAIL=forms@albertomiorin.com"]}]}
                        :provider-backend "s3"
