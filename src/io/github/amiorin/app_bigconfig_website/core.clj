@@ -1,6 +1,7 @@
 (ns io.github.amiorin.app-bigconfig-website.core
   (:require
    [cheshire.core :as json]
+   [clj-yaml.core :as yaml]
    [clojure.string :as str]
    [reitit.ring :as ring]
    [org.httpkit.server :as server]
@@ -42,7 +43,7 @@
   (let [form-name (get-in req [:path-params :form-name])
         post-data (json/parse-string (slurp body) true)]
     (-> (send-email :subject (format "IMPORTANT: %s form submitted" form-name)
-                    :body (json/generate-string post-data {:pretty true}))
+                    :body (yaml/generate-string post-data :dumper-options {:flow-style :block}))
         (merge {:uri uri
                 :post-data post-data})
         println)

@@ -1,6 +1,7 @@
 (ns io.github.amiorin.app-bigconfig-website.core-test
   (:require
    [cheshire.core :as json]
+   [clj-yaml.core :as yaml]
    [clojure.test :refer [deftest is testing]]
    [io.github.amiorin.app-bigconfig-website.core :as core])
   (:import
@@ -36,13 +37,13 @@
           (is (= "application/json" (get-in resp [:headers "Content-Type"])))
           (is (= {:status "success" :you-sent payload}
                  (json/parse-string (:body resp) true))))))
-    (testing "sends an email whose subject includes the form name and body is the JSON payload"
+    (testing "sends an email whose subject includes the form name and body is the YAML payload"
       (with-redefs [core/send-email stub-send]
         (reset! sent nil)
         (let [payload {:msg "hi"}]
           (core/handle-form (form-request "demo" payload))
           (is (= "IMPORTANT: demo form submitted" (:subject @sent)))
-          (is (= payload (json/parse-string (:body @sent) true))))))))
+          (is (= payload (yaml/parse-string (:body @sent)))))))))
 
 (deftest ring-handler-routes-form-test
   (testing "POST /form/:form-name is dispatched to handle-form, not the default UP handler"
