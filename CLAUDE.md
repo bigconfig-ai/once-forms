@@ -11,9 +11,9 @@ Form-handler backend for the bigconfig website. An HTTP server accepts JSON POST
 Two processes run side-by-side under `Procfile` (Hivemind):
 
 - `caddy` listens on `:80` and reverse-proxies to `localhost:8080` (see `Caddyfile`, which disables `auto_https` because TLS is terminated upstream).
-- `form` is the Clojure handler. On POST it JSON-parses the body, logs it, sends an email through `postal` using `resend-config`, and responds `{:status "success" :you-sent …}`. All other methods return `200 "UP"`. `wrap-cors` opens CORS to `*` and handles preflight.
+- `form` is the Clojure handler. Routing is done via `reitit.ring`: `POST /form/:form-name` JSON-parses the body, sends an email through `postal` using `resend-config` (subject `"IMPORTANT: <form-name> form submitted"`), and responds `{:status "success" :you-sent …}`. All other routes/methods fall through to a default handler that returns `200 "UP"`. `wrap-cors` opens CORS to `*` and handles preflight.
 
-SMTP credentials come from the process environment. `read-system-env` keywordises env var names (`SMTP_ADDRESS` → `:smtp-address`, etc.), so the handler expects: `SMTP_ADDRESS`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_PORT`, `MAILER_FROM_ADDRESS`. Env is read at namespace load, so reloading is required after changes.
+SMTP credentials come from the process environment. `read-system-env` keywordises env var names (`SMTP_ADDRESS` → `:smtp-address`, etc.), so the handler expects: `SMTP_ADDRESS`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_PORT`, `MAILER_FROM_ADDRESS`, `TARGET_EMAIL` (recipient). `env` and `resend-config` are `delay`s, so values are read on first use rather than at namespace load.
 
 ## Commands
 
@@ -54,6 +54,7 @@ bb package delete
 
 ## Clojure tooling
 
-- `deps.edn` pins runtime deps (`http-kit`, `postal`, `cheshire`) and the `:build` alias (`io.github.clojure/tools.build`).
+- `deps.edn` pins runtime deps (`http-kit`, `postal`, `cheshire`, `metosin/reitit`) and the `:build` alias (`io.github.clojure/tools.build`). A `:test` alias wires cognitect's `test-runner` against `test/`.
 - `.clj-kondo/` and `.lsp/` are checked in; clj-kondo already has imports for http-kit, encore, fs, and rewrite-clj — prefer updating those over re-importing.
-- `.nrepl-port` is written when an nREPL is running; the rich-comment block at the bottom of `core.clj` (`send-email` invocation) is the canonical REPL smoke test for SMTP wiring.
+- `.nrepl-port` is written when an nREPL is running. The rich-comment block at the bottom of `core.clj` starts/stops the http-kit server in-REPL; a separate `send-email` invocation is the canonical smoke test for SMTP wiring.
+- `API.org` holds `restclient`-style request snippets against `https://forms.bigconfig.website/form/…` — handy for manual end-to-end checks.

@@ -44,6 +44,19 @@
           (is (= "IMPORTANT: demo form submitted" (:subject @sent)))
           (is (= payload (json/parse-string (:body @sent) true))))))))
 
+(deftest ring-handler-routes-form-test
+  (testing "POST /form/:form-name is dispatched to handle-form, not the default UP handler"
+    (with-redefs [core/send-email (fn [& _] {:code 0 :error :SUCCESS})]
+      (let [payload {:name "Ada"}
+            resp (core/ring-handler
+                  {:uri "/form/clickhouse"
+                   :request-method :post
+                   :body (StringReader. (json/generate-string payload))})]
+        (is (= 200 (:status resp)))
+        (is (= "application/json" (get-in resp [:headers "Content-Type"])))
+        (is (= {:status "success" :you-sent payload}
+               (json/parse-string (:body resp) true)))))))
+
 (deftest wrap-cors-test
   (testing "OPTIONS preflight short-circuits with CORS headers and does not call the handler"
     (let [called? (atom false)

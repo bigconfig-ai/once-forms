@@ -52,7 +52,7 @@
 
 (def app-routes
   (ring/router
-   ["form/:form-name" {:post handle-form}]))
+   ["/form/:form-name" {:post handle-form}]))
 
 (def ring-handler
   (ring/ring-handler app-routes (constantly {:status 200 :body "UP"})))
@@ -85,3 +85,7 @@
                                  (deliver shutdown-promise true))))
     @shutdown-promise
     (println "Exit complete.")))
+
+(comment
+  (def stop-server (server/run-server app {:port 8080}))
+  (stop-server))

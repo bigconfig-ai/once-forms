@@ -1,0 +1,25 @@
+#+title: API
+
+#+begin_src restclient
+POST https://forms.bigconfig.website/form/clickhouse
+User-Agent: Emacs-Restclient
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "role": "admin"
+}
+#+end_src
+
+#+begin_src restclient
+POST http://localhost:8080/form/clickhouse
+User-Agent: Emacs-Restclient
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "role": "admin"
+}
+#+end_src
