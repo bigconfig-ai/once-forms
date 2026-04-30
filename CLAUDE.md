@@ -20,7 +20,7 @@ SMTP credentials come from the process environment. `read-system-env` keywordise
 Local dev:
 
 ```sh
-clj -M -m io.github.amiorin.once-forms.core
+clj -M -m io.github.bigconfig-ai.once-forms.core
 ```
 
 This starts http-kit on `:8080`. POST JSON to it directly, or run Caddy alongside via `hivemind Procfile` to exercise the `:80 → :8080` path.
@@ -42,15 +42,6 @@ docker run -p 80:80 --env-file .env once-forms
 ```
 
 `Procfile` runs `java -jar app.jar` for the `form` process, so the jar is renamed on copy — the version suffix in `build.clj` doesn't leak into the container path.
-
-Deployment (packaging via the `once` tool pinned in `bb.edn`):
-
-```sh
-bb package create
-bb package delete
-```
-
-`bb.edn` only defines the `package` task — it wires `io.github.amiorin.once.package/once*` with an inline workflow that provisions an OCI `VM.Standard.A1.Flex` instance, Cloudflare DNS for `bigconfig.website`, S3-backed Terraform state in `tf-state-251213589273-eu-west-1`, and Resend SMTP. Changes to infra go here, not in separate Terraform files. Babashka is still required on the dev host for this task even though the runtime no longer uses it.
 
 ## Clojure tooling
 

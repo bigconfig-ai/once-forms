@@ -3,7 +3,6 @@
 {
   languages.clojure.enable = true;
   packages = [
-    pkgs.babashka
     pkgs.hivemind
     pkgs.caddy
   ];

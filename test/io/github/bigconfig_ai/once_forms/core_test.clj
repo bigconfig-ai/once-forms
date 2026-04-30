@@ -1,9 +1,9 @@
-(ns io.github.amiorin.once-forms.core-test
+(ns io.github.bigconfig-ai.once-forms.core-test
   (:require
    [cheshire.core :as json]
    [clj-yaml.core :as yaml]
    [clojure.test :refer [deftest is testing]]
-   [io.github.amiorin.once-forms.core :as core])
+   [io.github.bigconfig-ai.once-forms.core :as core])
   (:import
    [java.io StringReader]))
 
