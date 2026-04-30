@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: amiorin/once-form-handler
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   test:
@@ -31,7 +31,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
