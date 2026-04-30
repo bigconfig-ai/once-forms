@@ -9,7 +9,7 @@
                       {:domain "bigconfig.website"
                        :package "package"
                        :once {:applications [{:host "forms.bigconfig.website"
-                                              :image "ghcr.io/amiorin/once-form-handler:latest"
+                                              :image "ghcr.io/bigconfig-ai/once-forms:latest"
                                               :env ["TARGET_EMAIL=forms@albertomiorin.com"]}]}
                        :provider-backend "s3"
                        :s3-bucket "tf-state-251213589273-eu-west-1"
