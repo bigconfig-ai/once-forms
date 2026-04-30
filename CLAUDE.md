@@ -20,7 +20,7 @@ SMTP credentials come from the process environment. `read-system-env` keywordise
 Local dev:
 
 ```sh
-clj -M -m io.github.amiorin.app-bigconfig-website.core
+clj -M -m io.github.amiorin.once-forms.core
 ```
 
 This starts http-kit on `:8080`. POST JSON to it directly, or run Caddy alongside via `hivemind Procfile` to exercise the `:80 → :8080` path.
@@ -28,7 +28,7 @@ This starts http-kit on `:8080`. POST JSON to it directly, or run Caddy alongsid
 Build the uberjar (tools.build via the `:build` alias, entry point in `build.clj`):
 
 ```sh
-clj -T:build uber    # produces target/app-bigconfig-website-0.1.0-standalone.jar
+clj -T:build uber    # produces target/once-forms-0.1.0-standalone.jar
 clj -T:build clean
 ```
 
@@ -37,8 +37,8 @@ The uberjar requires AOT — `core.clj` carries `(:gen-class)` and `build.clj` c
 Container build/run (three-stage Dockerfile: `clojure:temurin-25-tools-deps-alpine` builds the jar, an `alpine:3` stage pulls Hivemind, the final `caddy:2-alpine` image adds `openjdk25` and copies `/srv/app.jar`):
 
 ```sh
-docker build -t app-bigconfig-website .
-docker run -p 80:80 --env-file .env app-bigconfig-website
+docker build -t once-forms .
+docker run -p 80:80 --env-file .env once-forms
 ```
 
 `Procfile` runs `java -jar app.jar` for the `form` process, so the jar is renamed on copy — the version suffix in `build.clj` doesn't leak into the container path.

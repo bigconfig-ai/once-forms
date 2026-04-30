@@ -1,4 +1,4 @@
-(ns io.github.amiorin.app-bigconfig-website.core
+(ns io.github.amiorin.once-forms.core
   (:require
    [cheshire.core :as json]
    [clj-yaml.core :as yaml]

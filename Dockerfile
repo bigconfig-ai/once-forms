@@ -18,7 +18,7 @@ FROM caddy:2-alpine
 
 RUN apk add openjdk25
 
-COPY --from=builder /app/target/app-bigconfig-website-0.1.0-standalone.jar /srv/app.jar
+COPY --from=builder /app/target/once-forms-0.1.0-standalone.jar /srv/app.jar
 COPY --from=hivemind /usr/local/bin/hivemind /usr/local/bin/hivemind
 
 WORKDIR /srv

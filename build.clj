@@ -1,9 +1,9 @@
 (ns build
   (:require [clojure.tools.build.api :as b]))
 
-(def lib 'io.github.amiorin/app-bigconfig-website)
+(def lib 'io.github.amiorin/once-forms)
 (def version "0.1.0")
-(def main 'io.github.amiorin.app-bigconfig-website.core)
+(def main 'io.github.amiorin.once-forms.core)
 (def class-dir "target/classes")
 (def uber-file (format "target/%s-%s-standalone.jar" (name lib) version))
 (def basis (delay (b/create-basis {:project "deps.edn"})))
